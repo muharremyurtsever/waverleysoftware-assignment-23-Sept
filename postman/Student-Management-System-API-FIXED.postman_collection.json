@@ -1,0 +1,485 @@
+{
+	"info": {
+		"_postman_id": "b2c3d4e5-f6g7-8901-bcde-f23456789012",
+		"name": "Student Management System API - FIXED",
+		"description": "Complete API collection with CSRF tokens for all endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{accessToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "csrfToken",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const responseJson = pm.response.json();",
+									"    ",
+									"    // Extract CSRF token from Set-Cookie headers",
+									"    const cookies = pm.response.headers.get('Set-Cookie');",
+									"    if (cookies) {",
+									"        const csrfMatch = cookies.match(/csrfToken=([^;]+)/);",
+									"        if (csrfMatch) {",
+									"            const csrfToken = csrfMatch[1];",
+									"            pm.environment.set('csrfToken', csrfToken);",
+									"            console.log('CSRF Token set:', csrfToken);",
+									"        }",
+									"    }",
+									"    ",
+									"    pm.test('Login successful', function () {",
+									"        pm.expect(responseJson).to.have.property('id');",
+									"        pm.expect(responseJson).to.have.property('name');",
+									"        pm.expect(responseJson).to.have.property('email');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin@school-admin.com\",\n    \"password\": \"3OU4zn3q6Zh9\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Students CRUD",
+			"item": [
+				{
+					"name": "Get All Students",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-CSRF-Token",
+								"value": "{{csrfToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/students",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Student by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-CSRF-Token",
+								"value": "{{csrfToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/students/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Add New Student",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Token",
+								"value": "{{csrfToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Demo Student\",\n    \"email\": \"demo.student@example.com\",\n    \"phone\": \"1234567890\",\n    \"address\": \"123 Demo Street\",\n    \"roll_number\": \"001\",\n    \"date_of_birth\": \"2005-01-15\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/students",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Student",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Token",
+								"value": "{{csrfToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Updated Demo Student\",\n    \"email\": \"updated.demo@example.com\",\n    \"phone\": \"1234567891\",\n    \"address\": \"456 Updated Avenue\",\n    \"roll_number\": \"001\",\n    \"date_of_birth\": \"2005-01-15\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/students/3",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students",
+								"3"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Student Status",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Token",
+								"value": "{{csrfToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"active\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/students/3/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students",
+								"3",
+								"status"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Notices",
+			"item": [
+				{
+					"name": "Get All Notices",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-CSRF-Token",
+								"value": "{{csrfToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/notices",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"notices"
+							]
+						}
+					}
+				},
+				{
+					"name": "Add New Notice",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Token",
+								"value": "{{csrfToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Interview Demo Notice\",\n    \"description\": \"This notice demonstrates the description field usage - Problem 1 SOLVED!\",\n    \"status\": 1,\n    \"recipientType\": \"EV\",\n    \"recipientRole\": 0\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/notices",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"notices"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Notice Recipients",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-CSRF-Token",
+								"value": "{{csrfToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/notices/recipients/list",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"notices",
+								"recipients",
+								"list"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Classes & Sections",
+			"item": [
+				{
+					"name": "Get All Classes",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-CSRF-Token",
+								"value": "{{csrfToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/classes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"classes"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Sections",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-CSRF-Token",
+								"value": "{{csrfToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/sections",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"sections"
+							]
+						}
+					}
+				},
+				{
+					"name": "Add New Class",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Token",
+								"value": "{{csrfToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Grade 10\",\n    \"description\": \"Tenth Grade Class\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/classes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"classes"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Staff Management",
+			"item": [
+				{
+					"name": "Get All Staff",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-CSRF-Token",
+								"value": "{{csrfToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/staffs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"staffs"
+							]
+						}
+					}
+				},
+				{
+					"name": "Add New Staff",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Token",
+								"value": "{{csrfToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Jane Teacher\",\n    \"email\": \"jane.teacher@school.com\",\n    \"phone\": \"5551234567\",\n    \"department_id\": 1,\n    \"role_id\": 2,\n    \"address\": \"789 Teacher Lane\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/staffs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"staffs"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Dashboard",
+			"item": [
+				{
+					"name": "Get Dashboard Data",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-CSRF-Token",
+								"value": "{{csrfToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/dashboard",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"dashboard"
+							]
+						}
+					}
+				}
+			]
+		}
+	]
+}
